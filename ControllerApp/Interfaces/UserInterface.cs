@@ -6,8 +6,8 @@ namespace ControllerApp.Interfaces
 {
     public interface IUserInterface
     {
-        User AddUser(TempUser tempUser);
-        void UpdateUser(User user, TempUser tempUser);
+        User AddUser(UserDto tempUser);
+        void UpdateUser(User user, UserDto tempUser);
         void DeleteUser(User user);
         User GetUser(int id);
         List<User> GetUsers();

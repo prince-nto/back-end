@@ -1,12 +1,10 @@
-﻿using ControllerApp.DatabaseRules.Books;
-using ControllerApp.DatabaseRules.Cars;
-using ControllerApp.DatabaseRules.UserBooks;
+﻿using ControllerApp.Configurations.UsersConfigurations;
 using ControllerApp.DatabaseRules.Users;
-using ControllerApp.Domains.Books;
-using ControllerApp.Domains.Cars;
-using ControllerApp.Domains.UserBooks;
+using ControllerApp.Domains;
 using ControllerApp.Domains.Users;
 using Microsoft.EntityFrameworkCore;
+using TenderSystem.Configurations;
+using TenderSystem.Models;
 
 namespace ControllerApp
 {
@@ -16,27 +14,28 @@ namespace ControllerApp
         {
         }
 
-        public DbSet<Author> Authors { get; set; }
-        public DbSet<Book> Books { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<UserBook> UserBooks { get; set; }
-        public DbSet<UserBookState> UserBookStates { get; set; }
-        public DbSet<UserBookStatus> UserBookStatuses { get; set; }
         public DbSet<UserType> UserTypes { get; set; }
-        public DbSet<Car> Cars { get; set; }
-        public DbSet<CarBooking> CarBookings { get; set; }
+        public DbSet<TenderBidSubmission> TenderBidSubmissions { get; set; }
+        public DbSet<Company> Companies { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<StateOrgan> StateOrgans { get; set; }
+        public DbSet<Tender> Tenders { get; set; }
+        public DbSet<ProductGroup> ProductGroups { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new AuthorRule());
-            modelBuilder.ApplyConfiguration(new BookRule());
-            modelBuilder.ApplyConfiguration(new UserTypeRule());
-            modelBuilder.ApplyConfiguration(new UserRule());
-            modelBuilder.ApplyConfiguration(new UserBookStatusRule());
-            modelBuilder.ApplyConfiguration(new UserBookRule());
-            modelBuilder.ApplyConfiguration(new UserBookStateRule());
-            modelBuilder.ApplyConfiguration(new CarRule());
-            modelBuilder.ApplyConfiguration(new CarBookingRule());
+            modelBuilder.ApplyConfiguration(new CompanyConfiguration());
+            modelBuilder.ApplyConfiguration(new UserTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new UserConfiguration());
+            modelBuilder.ApplyConfiguration(new CompanyUserConfiguration());
+            modelBuilder.ApplyConfiguration(new ProductConfiguration());
+            modelBuilder.ApplyConfiguration(new StateOrganConfiguration());
+            modelBuilder.ApplyConfiguration(new TenderBidSubmissionConfiguration());
+            modelBuilder.ApplyConfiguration(new TenderBidSubmissionProductConfiguration());
+            modelBuilder.ApplyConfiguration(new TenderBidSubmissionConfiguration());
+            modelBuilder.ApplyConfiguration(new ProductGroupConfiguration());
         }
     }
 }

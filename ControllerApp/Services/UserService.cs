@@ -19,7 +19,7 @@ namespace ControllerApp.Services
             _mapper = mapper;
         }
 
-        public User AddUser(TempUser tempUser)
+        public User AddUser(UserDto tempUser)
         {
             var u = new User
             {
@@ -53,7 +53,7 @@ namespace ControllerApp.Services
             return _databaseContext.Users.OrderByDescending(u => u.UserId).ToList();
         }
 
-        public void UpdateUser(User user, TempUser tempUser)
+        public void UpdateUser(User user, UserDto tempUser)
         {
             user.Name = tempUser.Name;
             user.Surname = tempUser.Surname;

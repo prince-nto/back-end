@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TenderSystem.Services;
+using TenderSystem.Services.Interfaces;
 
 namespace ControllerApp
 {
@@ -35,13 +37,15 @@ namespace ControllerApp
 
             services.ConfigureIISIntegration();
 
-            services.AddDbContext<DatabaseContext>(opts => opts.UseSqlServer(Configuration["ConnectionString:LibraryDB"]));
+            services.AddDbContext<DatabaseContext>(opts => opts.UseSqlServer(Configuration["ConnectionString:SATenderSysDB"]));
 
             services.AddScoped<IUserInterface, UserService>();
 
-            services.AddScoped<IBookInterface, BookService>();
+            services.AddScoped<ICompanyService, CompanyService>();
 
-            services.AddScoped<ICarBookingInterface, CarBookingService>();
+            services.AddScoped<ITenderService, TenderService>();
+
+            services.AddScoped<ITenderBidService, TenderBidService>();
 
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
@@ -85,6 +89,7 @@ namespace ControllerApp
             {
                 endpoints.MapControllers();
             });
+
             
         }
     }

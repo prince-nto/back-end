@@ -1,13 +1,10 @@
 ﻿using AutoMapper;
-using ControllerApp.Domains.Books;
-using ControllerApp.Domains.Cars;
-using ControllerApp.Domains.UserBooks;
 using ControllerApp.Domains.Users;
-using ControllerApp.TempModels.Books;
-using ControllerApp.TempModels.Cars;
-using ControllerApp.TempModels.UserBooks;
+using ControllerApp.Dto;
+using ControllerApp.Dto.Users;
 using ControllerApp.TempModels.Users;
-using System.Linq;
+using System;
+using TenderSystem.Models;
 
 namespace ControllerApp
 {
@@ -22,11 +19,10 @@ namespace ControllerApp
             var config = new MapperConfiguration(cfg =>
             {
                 UserMappings(cfg);
-                BookMappings(cfg);
-                AuthoMappings(cfg);
-                UserBookStateMappings(cfg);
-                UserBookMappings(cfg);
-                CarBookingMappings(cfg);
+                TenderBidSubmissioMappings(cfg);
+                StateOrganMappings(cfg);
+                ProductMappings(cfg);
+                CompanyMappings(cfg);
             });
 
             _mapper = config.CreateMapper();
@@ -34,58 +30,58 @@ namespace ControllerApp
             return _mapper;
         }
 
-        private static void CarBookingMappings(IMapperConfigurationExpression cfg)
+        private static void CompanyMappings(IMapperConfigurationExpression cfg)
         {
-            cfg.CreateMap<TempCarBooking, CarBooking>()
-                .ForMember(db => db.User, opt => opt.Ignore())
-                .ForMember(db => db.Car, opt => opt.Ignore())
-                .ReverseMap();
+            cfg.CreateMap<CompanyDto, Company>()
+                .ReverseMap()
+                .ForMember(dest => dest.ContactPersons, opt => opt.Ignore());
 
-            cfg.CreateMap<TempCar, Car>()
+            cfg.CreateMap<CompanyUserDto, CompanyUser>()
+                .ReverseMap()
+                .ForMember(dest => dest.Company, opt => opt.Ignore())
+                .ForMember(dest => dest.User, opt => opt.Ignore());
+        }
+
+        private static void ProductMappings(IMapperConfigurationExpression cfg)
+        {
+            cfg.CreateMap<ProductDto, Product>()
                 .ReverseMap();
+        }
+
+        private static void StateOrganMappings(IMapperConfigurationExpression cfg)
+        {
+            cfg.CreateMap<StateOrganDto, StateOrgan>()
+                .ReverseMap();
+        }
+
+        private static void TenderBidSubmissioMappings(IMapperConfigurationExpression cfg)
+        {
+            cfg.CreateMap<Tender, TenderDto>()
+                .ReverseMap()
+                .ForMember(dest => dest.CloseDate, opt => opt.Ignore())
+                .ForMember(dest => dest.OpenDate, opt => opt.Ignore());
+
+            cfg.CreateMap<TenderBidSubmission, TenderBidSubmissionDto>()
+                .ForMember(dest => dest.SumittedBy, opt => opt.Ignore())
+                .ForMember(dest => dest.TenderBidSubmissionProducts, opt => opt.Ignore())
+                .ForMember(dest => dest.DateSubmitted, opt => opt.Ignore());
+
+
+            cfg.CreateMap<TenderBidSubmissionProduct, TenderBidSubmissionProductDto>()
+                .ReverseMap()
+                .ForMember(dest => dest.TenderBidSubmission, opt => opt.Ignore());
         }
 
         private static void UserMappings(IMapperConfigurationExpression cfg)
         {
-            cfg.CreateMap<TempUserType, UserType>()
+            cfg.CreateMap<UserTypeDto, UserType>()
                 .ReverseMap();
 
-            cfg.CreateMap<TempUser, User>()
+            cfg.CreateMap<UserDto, User>()
                 .ForMember(db => db.DateUserWasAdded, opt => opt.Ignore())
                 .ForMember(db => db.UserType, opt => opt.Ignore())
                 .ReverseMap()
                  .ForMember(db => db.UserType, opt => opt.MapFrom(d => d.UserType));
-        }
-
-        private static void BookMappings(IMapperConfigurationExpression cfg)
-        {
-            cfg.CreateMap<TempBook, Book>()
-                .ReverseMap();
-        }
-
-        private static void UserBookMappings(IMapperConfigurationExpression cfg)
-        {
-            cfg.CreateMap<TempUserBook, UserBook>()
-                .ForMember(db => db.UserBookStates, opt => opt.Ignore())
-                .ForMember(db => db.User, opt => opt.Ignore())
-                .ForMember(db => db.Book, opt => opt.Ignore())
-                .ReverseMap()
-                 .ForMember(db => db.CurrentState, opt => opt.MapFrom(src => src.UserBookStates.OrderByDescending(f => f.UserBookStatusId).FirstOrDefault()));
-        }
-
-        private static void UserBookStateMappings(IMapperConfigurationExpression cfg)
-        {
-            cfg.CreateMap<TempUserBookState, UserBookState>()
-                .ReverseMap();
-
-            cfg.CreateMap<UserBookStatus, UserBookStatus>();
-        }
-
-        private static void AuthoMappings(IMapperConfigurationExpression cfg)
-        {
-            cfg.CreateMap<TempAuthor, Author>()
-
-                .ReverseMap();
         }
     }
 }

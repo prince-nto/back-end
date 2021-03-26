@@ -14,8 +14,6 @@ namespace TenderSystem.Configurations
             builder.Property(p => p.QuotedPrice).IsRequired().HasConversion(v => Decimal.ToDouble(v), v => Convert.ToDecimal(v));
             builder.Property(p => p.RecommendedPrice).IsRequired().HasConversion(v => Decimal.ToDouble(v), v => Convert.ToDecimal(v));
             builder.Property(p => p.Quantity).IsRequired();
-
-           
         }
     }
 }

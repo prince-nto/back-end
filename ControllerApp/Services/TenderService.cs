@@ -31,7 +31,7 @@ namespace TenderSystem.Services.Interfaces
                 var stateOrgan = _databaseContext.StateOrgans.Find(tender.StateOrganId);
                 tender.StateOrgan = stateOrgan;
 
-            }
+        }
 
             return tenders;
         }
@@ -166,7 +166,7 @@ namespace TenderSystem.Services.Interfaces
                 if (priceDifference > 0)
                 {
                     percentage = ((priceDifference / tenderBid.TotalQuotation) * 100);
-                }
+        }
 
 
                 if (percentage > 27 && percentage <= 30)

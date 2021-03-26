@@ -43,7 +43,7 @@ namespace ControllerApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddUser([FromBody]TempUser tempUser)
+        public IActionResult AddUser([FromBody]UserDto tempUser)
         {
             if(tempUser == null)
             {
@@ -54,7 +54,7 @@ namespace ControllerApp.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateUser(int id, [FromBody]TempUser tempUser)
+        public IActionResult UpdateUser(int id, [FromBody]UserDto tempUser)
         {
             if (tempUser == null)
             {

@@ -2,6 +2,7 @@
 using ControllerApp;
 using ControllerApp.Domains.Users;
 using ControllerApp.Dto;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -115,7 +116,6 @@ namespace TenderSystem.Services.Interfaces
 
                 tenderBidSubmission.TenderBidSubmissionProducts.Add(tenderBidSubmissionProduct);
             }
-
             _databaseContext.SaveChanges();
 
             return tenderBidSubmission;
@@ -133,30 +133,24 @@ namespace TenderSystem.Services.Interfaces
 
         public void EvaluationTenderBids(int tenderId)
         {
-            var tender = _databaseContext.Tenders.Find(tenderId);
+            var tender = _databaseContext.Tenders.Include(x => x.EligibleSuppliers).Single(x => x.TenderId == tenderId);
             var submittedTenders = _databaseContext.TenderBidSubmissions.Where(t => t.TenderId == tenderId).ToList();
-            EligibleSupplier eligibleSupplier = new EligibleSupplier();
-            tender.EligibleSuppliers = new List<EligibleSupplier>();
-
-            var eligibleSuppliers = new List<EligibleSupplier>();
-
+            
             decimal totProductQtAmt = 0;
             decimal totProductRecAmt = 0;
-            decimal priceDifference = 0;
-            var tasks = new List<Task>();
-
+            decimal priceDifference = 0;        
+            
             foreach (var tenderBid in submittedTenders)
             {
                 var tenderBidProducts = _databaseContext.TenderBidSubmissionProducts.Where(t => t.TenderBidSubmissionId == tenderBid.TenderBidSubmissionId).ToList();
-
-                foreach(var product in tenderBidProducts)
+                
+                foreach (var product in tenderBidProducts)
                 {
                     var prod = _databaseContext.Products.Find(product.ProductId);
                     product.RecommendedPrice = prod.ProductPrice;
-                    totProductQtAmt = product.QuotedPrice * product.Quantity;
-                    totProductRecAmt = product.RecommendedPrice * product.Quantity;
-
-                    priceDifference = totProductQtAmt - totProductRecAmt;
+                    totProductQtAmt += product.QuotedPrice * product.Quantity;
+                    totProductRecAmt += product.RecommendedPrice * product.Quantity;
+                    priceDifference += totProductQtAmt - totProductRecAmt;
                 }
 
                 var company = _databaseContext.TenderBidSubmissions.Where(c => c.RegistrationNumber == tenderBid.RegistrationNumber).FirstOrDefault();
@@ -166,119 +160,38 @@ namespace TenderSystem.Services.Interfaces
                 if (priceDifference > 0)
                 {
                     percentage = ((priceDifference / tenderBid.TotalQuotation) * 100);
-        }
+                }
 
-
+                int score = 0;
                 if (percentage > 27 && percentage <= 30)
-                {
-                    eligibleSupplier.RegistrationNumber = company.RegistrationNumber;
-                    eligibleSupplier.CompanyName = company.CompanyName;
-                    eligibleSupplier.Tender = tender;
-                    eligibleSupplier.TenderId = tender.TenderId;
-                    eligibleSupplier.Score = 1;
-                    eligibleSupplier.InflationRate = percentage;
-                    eligibleSupplier.DateEvaluated = DateTime.Now;
-
-                    tender.EligibleSuppliers.Add(eligibleSupplier);
-                    //SaveToDatabase(eligibleSupplier);
-                    //eligibleSuppliers.Add(eligibleSupplier);
-                    //tender.EligibleSuppliers.Add(eligibleSupplier);
-                    _databaseContext.SaveChanges();
-                    Thread.Sleep(30);
-                    //await Task.WhenAll(Task.Run(() => SaveToDatabase(eligibleSupplier)));
-
-                }
+                    score = 1;
                 else if (percentage > 21 && percentage <= 24)
-                {
-                    eligibleSupplier.RegistrationNumber = company.RegistrationNumber;
-                    eligibleSupplier.CompanyName = company.CompanyName;
-                    eligibleSupplier.Tender = tender;
-                    eligibleSupplier.TenderId = tender.TenderId;
-                    eligibleSupplier.Score = 2;
-                    eligibleSupplier.InflationRate = percentage;
-                    eligibleSupplier.DateEvaluated = DateTime.Now;
-
-                    tender.EligibleSuppliers.Add(eligibleSupplier);
-                    //SaveToDatabase(eligibleSupplier);
-                    //eligibleSuppliers.Add(eligibleSupplier);
-                    //tender.EligibleSuppliers.Add(eligibleSupplier);
-                    _databaseContext.SaveChanges();
-                    Thread.Sleep(30);
-                    //await Task.WhenAll(Task.Run(() => SaveToDatabase(eligibleSupplier)));
-                }
+                    score = 2;
                 else if (percentage > 18 && percentage < 21)
-                {
-                    eligibleSupplier.RegistrationNumber = company.RegistrationNumber;
-                    eligibleSupplier.CompanyName = company.CompanyName;
-                    eligibleSupplier.Tender = tender;
-                    eligibleSupplier.TenderId = tender.TenderId;
-                    eligibleSupplier.Score = 3;
-                    eligibleSupplier.InflationRate = percentage;
-                    eligibleSupplier.DateEvaluated = DateTime.Now;
-
-                    tender.EligibleSuppliers.Add(eligibleSupplier);
-                    //SaveToDatabase(eligibleSupplier);
-                    //eligibleSuppliers.Add(eligibleSupplier);
-                    //tender.EligibleSuppliers.Add(eligibleSupplier);
-                    _databaseContext.SaveChanges();
-                    Thread.Sleep(30);
-                    // await Task.WhenAll(Task.Run(() => SaveToDatabase(eligibleSupplier)));
-                }
+                    score = 3;
                 else if (percentage > 15 && percentage <= 18)
-                {
-                    eligibleSupplier.RegistrationNumber = company.RegistrationNumber;
-                    eligibleSupplier.CompanyName = company.CompanyName;
-                    eligibleSupplier.Tender = tender;
-                    eligibleSupplier.TenderId = tender.TenderId;
-                    eligibleSupplier.Score = 4;
-                    eligibleSupplier.InflationRate = percentage;
-                    eligibleSupplier.DateEvaluated = DateTime.Now;
-
-                    tender.EligibleSuppliers.Add(eligibleSupplier);
-                    //SaveToDatabase(eligibleSupplier);
-                    //eligibleSuppliers.Add(eligibleSupplier);
-                    //tender.EligibleSuppliers.Add(eligibleSupplier);
-                    _databaseContext.SaveChanges();
-                    Thread.Sleep(30);
-                    //await Task.WhenAll(Task.Run(() => SaveToDatabase(eligibleSupplier)));
-                }
+                    score = 4;
                 else if (percentage > 10 && percentage <= 15)
-                {
-                    eligibleSupplier.RegistrationNumber = company.RegistrationNumber;
-                    eligibleSupplier.CompanyName = company.CompanyName;
-                    eligibleSupplier.Tender = tender;
-                    eligibleSupplier.TenderId = tender.TenderId;
-                    eligibleSupplier.Score = 5;
-                    eligibleSupplier.InflationRate = percentage;
-                    eligibleSupplier.DateEvaluated = DateTime.Now;
-
-
-                    tender.EligibleSuppliers.Add(eligibleSupplier);
-                    //SaveToDatabase(eligibleSupplier);
-                    //eligibleSuppliers.Add(eligibleSupplier);
-                    //tender.EligibleSuppliers.Add(eligibleSupplier);
-                    _databaseContext.SaveChanges();
-                    Thread.Sleep(30);
-                    //await Task.WhenAll(Task.Run(() => SaveToDatabase(eligibleSupplier)));
-                }
+                    score = 5;
                 else
                     continue;
 
+                var eligibleSupplier = new EligibleSupplier
+                {
+                   RegistrationNumber = company.RegistrationNumber,
+                   CompanyName = company.CompanyName,
+                   Score = score,
+                   InflationRate = percentage,
+                   DateEvaluated = DateTime.Now,
+                   TenderId = tender.TenderId
+                };
+
+                tender.EligibleSuppliers.Add(eligibleSupplier);
+                _databaseContext.SaveChanges();            
             }
 
-            //foreach(var supplier in eligibleSuppliers)
-            //{
-            //    tender.EligibleSuppliers.Add(supplier);
-            //    _databaseContext.EligibleSuppliers.Add(supplier);
-            //    _databaseContext.SaveChanges();
-            //}
-
-            //_databaseContext.SaveChanges();
-
-           // await Task.WhenAll(Task.Run(() => SaveToDatabase(eligibleSupplier)));
-            
-
         }
+
 
         public void SaveToDatabase(EligibleSupplier eligibleSupplier)
         {
